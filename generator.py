@@ -8,7 +8,7 @@ class GeneratorBlock(torch.nn.Module):
     input: [B, C, H, W]
     Deconv
     BN (skip on last layer)
-    Activation: ReLU / Tanh (last layer)
+    Activation: ReLU[0,1] / Tanh[-1,1] (last layer)
     """
 
     def __init__(self, in_ch: int, out_ch: int, kernel_size: int, stride: int, padding: int, last: bool) -> None:
@@ -32,12 +32,12 @@ class GeneratorBlock(torch.nn.Module):
 
 class Generator(nn.Module):
     """
-    noise tensor: [B, latent_dim, 1, 1]
-    [B, feature_maps*8, 4, 4]
-    [B, feature_maps*4, 8, 8]
-    [B, feature_maps*2, 16, 16]
-    [B, feature_maps, 32, 32]
-    output: [B, img_channels, 64, 64]
+    noise tensor:   [B, latent_dim,        1,  1]
+                    [B, feature_maps * 8,  4,  4]
+                    [B, feature_maps * 4,  8,  8]
+                    [B, feature_maps * 2, 16, 16]
+                    [B, feature_maps,     32, 32]
+    output:         [B, img_channels,     64, 64]
     """
 
     def __init__(self, latent_dim: int, feature_maps: int, img_channels: int) -> None:
