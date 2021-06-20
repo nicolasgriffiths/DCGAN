@@ -65,12 +65,12 @@ class DCGAN(pl.LightningModule):
         real_img, _ = batch  # Label is not used
         assert real_img.shape[0] == 9
         z = self.validation_noise.to(self.device)
-        sample_imgs = self(z)
+        sample_imgs = self(z) * 0.5 - 0.5
         fake_grid = make_grid(sample_imgs, nrow=3)
-        self.logger.experiment.add_image("generated_images", fake_grid, self.current_epoch)
+        self.logger.experiment.add_image("generated_images", fake_grid, self.global_step)
 
-        real_grid = make_grid(real_img, nrow=3)
-        self.logger.experiment.add_image("real_images", real_grid, self.current_epoch)
+        real_grid = make_grid(real_img * 0.5 - 0.5, nrow=3)
+        self.logger.experiment.add_image("real_images", real_grid, self.global_step)
 
     @staticmethod
     def _weights_init(m):
@@ -90,7 +90,7 @@ class DCGAN(pl.LightningModule):
 
     def _disc_step(self, real_img: torch.Tensor) -> torch.Tensor:
         discriminator_loss = self._get_discriminator_loss(real_img)
-        self.log("loss/discriminator", discriminator_loss, on_epoch=True)
+        self.logger.experiment.add_scalar("loss/discriminator", discriminator_loss, self.global_step)
         return discriminator_loss
 
     def _get_discriminator_loss(self, real_img: torch.Tensor) -> torch.Tensor:
@@ -111,7 +111,7 @@ class DCGAN(pl.LightningModule):
 
     def _gen_step(self, real_img: torch.Tensor) -> torch.Tensor:
         gen_loss = self._get_generator_loss(real_img)
-        self.log("loss/generator", gen_loss, on_epoch=True)
+        self.logger.experiment.add_scalar("loss/generator", gen_loss, self.global_step)
         return gen_loss
 
     def _get_generator_loss(self, real_img: torch.Tensor) -> torch.Tensor:
