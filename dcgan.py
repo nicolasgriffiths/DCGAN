@@ -1,9 +1,10 @@
-from typing import Optional, Tuple, List, Any
+from dataclasses import dataclass, fields
+from typing import Tuple, List, Any
+
 import torch
 from torch import nn
 import pytorch_lightning as pl
 
-from dataclasses import dataclass
 from generator import Generator
 from discriminator import Discriminator
 
@@ -30,6 +31,10 @@ class DCGAN(pl.LightningModule):
         self.discriminator = Discriminator(feature_maps=config.feature_maps_gen, img_channels=config.image_channels)
         self.discriminator.apply(self._weights_init)
         self.loss = nn.BCELoss()
+
+        for f in fields(self.config):
+            self.hparams[f.name] = getattr(self.config, f.name)
+        self.save_hyperparameters()
 
     def configure_optimizers(self) -> Tuple[List[torch.optim.Optimizer], List[Any]]:
         opt_disc = torch.optim.Adam(
