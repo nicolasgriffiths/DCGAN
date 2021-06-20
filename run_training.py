@@ -10,7 +10,7 @@ from data import get_datasets, get_dataloaders
 @dataclass
 class Config:
     # Training
-    batch_size: int = 512
+    batch_size: int = 128
     num_workers: int = 4
     max_epochs: int = 10
     gpus: int = 1
