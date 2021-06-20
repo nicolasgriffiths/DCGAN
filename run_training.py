@@ -12,7 +12,7 @@ class Config:
     # Training
     batch_size: int = 128
     num_workers: int = 4
-    max_epochs: int = 10
+    max_epochs: int = 100
     gpus: int = 1
 
     # Dataset

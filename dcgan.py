@@ -14,10 +14,10 @@ from discriminator import Discriminator
 class DCGANConfig:
     beta1: float = 0.5
     beta2: float = 0.999
-    feature_maps_gen: int = 64
-    feature_maps_disc: int = 64
+    feature_maps_gen: int = 32
+    feature_maps_disc: int = 32
     image_channels: int = 1
-    latent_dim: int = 100
+    latent_dim: int = 32
     learning_rate: float = 0.0002
 
 
