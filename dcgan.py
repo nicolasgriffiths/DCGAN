@@ -3,6 +3,7 @@ from typing import Tuple, List, Any
 
 import torch
 from torch import nn
+from torchvision.utils import make_grid
 import pytorch_lightning as pl
 
 from generator import Generator
@@ -32,6 +33,8 @@ class DCGAN(pl.LightningModule):
         self.discriminator.apply(self._weights_init)
         self.loss = nn.BCELoss()
 
+        self.validation_noise = torch.randn(9, config.latent_dim)
+
         for f in fields(self.config):
             self.hparams[f.name] = getattr(self.config, f.name)
         self.save_hyperparameters()
@@ -57,6 +60,17 @@ class DCGAN(pl.LightningModule):
         assert optimizer_idx <= 1
         real_img, _ = batch  # Label is not used
         return self._disc_step(real_img) if optimizer_idx == 0 else self._gen_step(real_img)
+
+    def validation_step(self, batch, batch_idx):
+        real_img, _ = batch  # Label is not used
+        assert real_img.shape[0] == 9
+        z = self.validation_noise.to(self.device)
+        sample_imgs = self(z)
+        fake_grid = make_grid(sample_imgs, nrow=3)
+        self.logger.experiment.add_image("generated_images", fake_grid, self.current_epoch)
+
+        real_grid = make_grid(real_img, nrow=3)
+        self.logger.experiment.add_image("real_images", real_grid, self.current_epoch)
 
     @staticmethod
     def _weights_init(m):
