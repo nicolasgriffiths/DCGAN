@@ -105,7 +105,7 @@ class Discriminator(nn.Module):
                             kernel_size=4,
                             stride=1,
                             padding=0,
-                            batch_norm=True,
+                            batch_norm=False,
                             last=True,
                         ),
                     ),
