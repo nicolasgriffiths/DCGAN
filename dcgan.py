@@ -3,10 +3,12 @@ import torch
 from torch import nn
 import pytorch_lightning as pl
 
+from dataclasses import dataclass
 from generator import Generator
 from discriminator import Discriminator
 
 
+@dataclass
 class DCGANConfig:
     beta1: float = 0.5
     beta2: float = 0.999
@@ -61,7 +63,7 @@ class DCGAN(pl.LightningModule):
             torch.nn.init.zeros_(m.bias)
 
     def _get_fake_pred(self, batch_size: int) -> torch.Tensor:
-        noise = torch.randn(batch_size, self.config.latent_dim, device=self.device)
+        noise = torch.randn((batch_size, self.config.latent_dim), device=self.device)
         fake_img = self.forward(noise)
         return self.discriminator(fake_img)
 
@@ -93,7 +95,8 @@ class DCGAN(pl.LightningModule):
         self.log("loss/generator", gen_loss, on_epoch=True)
         return gen_loss
 
-    def _get_generator_loss(self, real: torch.Tensor) -> torch.Tensor:
-        fake_pred = self._get_fake_pred(real)
+    def _get_generator_loss(self, real_img: torch.Tensor) -> torch.Tensor:
+        bs = real_img.size(0)
+        fake_pred = self._get_fake_pred(bs)
         fake_gt = torch.ones_like(fake_pred)  # Generator tries to fool discriminator
         return self.loss(fake_pred, fake_gt)
